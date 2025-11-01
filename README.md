@@ -42,4 +42,4 @@ This repo is intentionally lightweight so you can deploy quickly to DigitalOcean
 - The LLM service here is a stub returning deterministic responses so the demo is reliable offline. Replace `llm_service/utils/vectorstore.py` with a real vector DB + model pipeline (e.g., FAISS + HuggingFace/Local Llama 2 / OpenAI).
 - Add DigitalOcean Spaces integration to store uploaded PDFs and use `pdfminer`/`PyMuPDF` in `llm_service` for accurate PDF extraction and page-anchored citations.
 
-Happy hacking — run the demo and I can extend it to use a real retrieval+LLM pipeline or produce a production-ready repo with full CI/CD to App Platform + AMD Droplet guidance.
+Run the demo and I can extend it to use a real retrieval+LLM pipeline or produce a production-ready repo with full CI/CD to App Platform + AMD Droplet guidance.
