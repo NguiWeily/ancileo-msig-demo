@@ -1,0 +1,88 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8"/>
+    <title>Ancileo Concierge Demo</title>
+    <style>
+      body { font-family: system-ui, Arial; max-width: 900px; margin: 2rem auto; padding: 1rem; }
+      .chat { border: 1px solid #ddd; padding: 1rem; border-radius: 8px; min-height: 120px; }
+      .msg { margin: 0.5rem 0; }
+      .user { color: #0b5; }
+      .bot { color: #06c; }
+      label { display:block; margin-top: 1rem; }
+    </style>
+  </head>
+  <body>
+    <h1>Ancileo Concierge — Demo</h1>
+    <p>Upload the sample policy (or use the included sample) and ask questions. This demo uses a simple deterministic LLM microservice that returns citations.</p>
+
+    <div>
+      <label>Upload policy (text file for demo): <input id="file" type="file" accept=".txt,.pdf"/></label>
+      <button id="uploadBtn">Upload</button>
+      <div id="uploadStatus">No file uploaded. Use the included <code>sample_policies/sample_policy.txt</code> for quick demo.</div>
+    </div>
+
+    <div style="margin-top:1rem;">
+      <label>Question: <input id="question" style="width:70%"/></label>
+      <button id="askBtn">Ask</button>
+    </div>
+
+    <h3>Conversation</h3>
+    <div class="chat" id="chat"></div>
+
+    <script>
+      const uploadBtn = document.getElementById('uploadBtn');
+      const askBtn = document.getElementById('askBtn');
+      const fileInput = document.getElementById('file');
+      const chat = document.getElementById('chat');
+      let currentPolicyId = 'sample_policy.txt'; // default sample
+
+      function append(role, text) {
+        const d = document.createElement('div');
+        d.className = 'msg ' + (role==='user'?'user':'bot');
+        d.textContent = (role==='user'?'> ':'') + text;
+        chat.appendChild(d);
+      }
+
+      uploadBtn.onclick = async () => {
+        const f = fileInput.files[0];
+        if (!f) return alert('Choose a file (use sample_policy.txt in sample_policies for quick demo).');
+        const fd = new FormData();
+        fd.append('policy', f, f.name);
+        append('user', 'Uploading ' + f.name);
+        const r = await fetch('http://localhost:8080/api/upload', { method: 'POST', body: fd });
+        const j = await r.json();
+        if (j.policyId) {
+          currentPolicyId = j.policyId;
+          document.getElementById('uploadStatus').textContent = 'Uploaded: ' + currentPolicyId;
+          append('bot', 'Upload complete. policyId=' + currentPolicyId);
+        } else {
+          append('bot', 'Upload failed: ' + JSON.stringify(j));
+        }
+      };
+
+      askBtn.onclick = async () => {
+        const q = document.getElementById('question').value;
+        if (!q) return alert('Type a question first');
+        append('user', q);
+        append('bot', 'Thinking...');
+        const r = await fetch('http://localhost:8080/api/ask', {
+          method: 'POST',
+          headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({ question: q, policyId: currentPolicyId })
+        });
+        const j = await r.json();
+        // remove the last "Thinking..." message
+        const msgs = chat.querySelectorAll('.msg');
+        if (msgs.length) msgs[msgs.length-1].remove();
+        if (j.answer) {
+          append('bot', j.answer);
+        } else if (j.error) {
+          append('bot', 'Error: ' + j.error);
+        } else {
+          append('bot', JSON.stringify(j));
+        }
+      };
+    </script>
+  </body>
+</html>

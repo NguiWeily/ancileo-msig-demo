@@ -1,0 +1,28 @@
+name: ancileo-msig-demo
+services:
+  - name: api
+    github:
+      repo: "YOUR_GITHUB_USERNAME/REPO"
+      branch: main
+      deploy_on_push: true
+    run_command: "node index.js"
+    dockerfile_path: "server/Dockerfile"
+    envs:
+      - key: LLM_SERVICE_URL
+        value: "https://<LLM_SERVICE_HOST>/qa"
+  - name: llm
+    github:
+      repo: "YOUR_GITHUB_USERNAME/REPO"
+      branch: main
+      deploy_on_push: false
+    dockerfile_path: "llm_service/Dockerfile"
+    run_command: "uvicorn main:app --host 0.0.0.0 --port 8000"
+    envs: []
+static_sites:
+  - name: frontend
+    build_command: ""
+    output_dir: "/"
+    github:
+      repo: "YOUR_GITHUB_USERNAME/REPO"
+      branch: main
+    dockerfile_path: "frontend/Dockerfile"

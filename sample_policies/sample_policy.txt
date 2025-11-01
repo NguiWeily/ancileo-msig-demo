@@ -1,0 +1,9 @@
+Sample TravelEasy Policy (demo)
+Page 1
+Section 1. Introduction...
+Page 2
+Section 4. Trip Cancellation:
+If the insured tests positive for an infectious disease within 7 days prior to departure, trip cancellation will be covered subject to the terms below.
+Page 3
+Section 7. Emergency Medical:
+Covers necessary medical expenses up to $100,000 per insured person.
